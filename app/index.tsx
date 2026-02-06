@@ -1,3 +1,5 @@
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
@@ -12,16 +14,29 @@ const LOGO = {
   dark: require('@/assets/images/react-native-reusables-dark.png'),
 };
 
-const SCREEN_OPTIONS = {
-  title: 'React Native Reusables',
+export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & {
+  singular?: boolean;
+}
+
+const SCREEN_OPTIONS: ScreenType = {
+  headerTitle: 'express-music',
   headerTransparent: true,
-  headerRight: () => <ThemeToggle />,
+  headerRight: () => (
+    <>
+      <Avatar className="size-12 border-white bg-black" alt={" user "}>
+        <AvatarImage source={require('@/assets/images/react-native-reusables-light.png')} />
+        <AvatarFallback>
+          <Text className=''>{"UN"}</Text>
+        </AvatarFallback>
+      </Avatar>
+      <ThemeToggle />
+    </>
+  ),
+
+
 };
 
-const IMAGE_STYLE: ImageStyle = {
-  height: 76,
-  width: 76,
-};
+
 
 export default function Screen() {
   const { colorScheme } = useColorScheme();
@@ -29,30 +44,7 @@ export default function Screen() {
   return (
     <>
       <Stack.Screen options={SCREEN_OPTIONS} />
-      <View className="flex-1 items-center justify-center gap-8 p-4">
-        <Image source={LOGO[colorScheme ?? 'light']} style={IMAGE_STYLE} resizeMode="contain" />
-        <View className="gap-2 p-4">
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            1. Edit <Text variant="code">app/index.tsx</Text> to get started.
-          </Text>
-          <Text className="ios:text-foreground font-mono text-sm text-muted-foreground">
-            2. Save to see your changes instantly.
-          </Text>
-        </View>
-        <View className="flex-row gap-2">
-          <Link href="https://reactnativereusables.com" asChild>
-            <Button>
-              <Text>Browse the Docs</Text>
-            </Button>
-          </Link>
-          <Link href="https://github.com/founded-labs/react-native-reusables" asChild>
-            <Button variant="ghost">
-              <Text>Star the Repo</Text>
-              <Icon as={StarIcon} />
-            </Button>
-          </Link>
-        </View>
-      </View>
+
     </>
   );
 }
