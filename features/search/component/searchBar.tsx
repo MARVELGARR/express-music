@@ -1,9 +1,8 @@
 
 
-
-import useDebounce from '@/features/universal/hooks/useDebounce';
+import { Search } from 'lucide-react-native';
 import { useEffect, useRef } from 'react'
-import { View, Text, TextInput, TextInputChangeEvent } from 'react-native'
+import { View, TextInput, Pressable, } from 'react-native'
 
 
 type searchBarType = {
@@ -19,15 +18,13 @@ const SearchBar = ({ onChange, value, ref }: searchBarType) => {
         ref.current?.focus()
     }, [])
 
-
-
-
-    const { debouncedValue } = useDebounce(value)
-
     return (
-        <View>
-            <TextInput onChangeText={(value) => onChange(value)} value={value} ref={ref} placeholder='sdasdasdas' className='borders flex-1' />
-        </View>
+        <Pressable style={{ padding: 4 }} className='w-full flex  gap-3 flex-row border rounded-md' onPress={() => ref.current?.focus()}>
+
+            <Search style={{ marginLeft: 4 }} size={25} className=' ' />
+            <TextInput style={{ marginLeft: 10 }} className='flex-1 border-none outline-none placeholder:ml-4 ' onChangeText={(value) => onChange(value)} value={value} ref={ref} placeholder='Search songs, playlist and artist...' />
+
+        </Pressable>
     )
 }
 

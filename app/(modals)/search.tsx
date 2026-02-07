@@ -21,7 +21,7 @@ const search = () => {
     const searchRef = useRef<TextInput | null>(null)
     const [searchTerm, setSearchTerm] = useState("")
 
-
+    const { debouncedValue } = useDebounce(searchTerm)
 
     const SCREEN_OPTIONS: ScreenType = {
         headerTitle: "",
