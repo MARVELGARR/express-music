@@ -1,7 +1,9 @@
-import { View, Text, TextInput } from 'react-native'
-import React from 'react'
+import { View, Text, TextInput, TextInputChangeEvent } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { Stack } from 'expo-router'
 import { Search } from 'lucide-react-native';
+import SearchBar from '@/features/search/component/searchBar';
+import useDebounce from '@/features/universal/hooks/useDebounce';
 
 
 export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & {
@@ -15,7 +17,11 @@ export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & 
 const search = () => {
 
 
-    const
+
+    const searchRef = useRef<TextInput | null>(null)
+    const [searchTerm, setSearchTerm] = useState("")
+
+
 
     const SCREEN_OPTIONS: ScreenType = {
         headerTitle: "",
@@ -23,12 +29,7 @@ const search = () => {
         headerRight: ({ tintColor }) => (
             <View className='flex-1 flex-row items-center '>
 
-                <TextInput value='gdfdfgf' placeholder='fjkfdfdfkj' className='border-2 flex-1' />
-
-                {/* <View className=' w-full gap-4 flex bg-muted flex-row items-center border-primary border p-1 rounded-xl '>
-                <Search size={20} color={tintColor} />
-                <Text className='text-muted-foreground '>Search songs, playlist and artist</Text>
-            </View> */}
+                <SearchBar onChange={setSearchTerm} value={searchTerm} ref={searchRef} />
             </View>
         ),
 
@@ -40,7 +41,7 @@ const search = () => {
         <>
             <Stack.Screen options={SCREEN_OPTIONS} />
             <View>
-                <Text>........</Text>
+
             </View>
         </>
     )
