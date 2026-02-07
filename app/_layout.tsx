@@ -25,10 +25,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      {/* <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} /> */}
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, }} />
+        <Stack.Screen name="(modals)" options={{ headerShown: false, presentation: "modal" }} />
+
       </Stack>
       <PortalHost />
     </ThemeProvider>

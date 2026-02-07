@@ -3,31 +3,27 @@
 
 import { Tabs } from 'expo-router';
 import { Home, Search, Library } from 'lucide-react-native';
+import { StyleSheet } from 'nativewind';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#1DB954', tabBarStyle: { backgroundColor: '#000' } }}>
+    <Tabs screenOptions={{ animation: "none", }}>
       <Tabs.Screen
         name="index" // Matches index.tsx
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Home color={color} />,
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="search" // Matches search.tsx
+        name="library" // Matches search.tsx
+
         options={{
-          title: 'Search',
-          tabBarIcon: ({ color }) => <Search color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="library" // Matches library.tsx
-        options={{
-          title: 'Library',
-          tabBarIcon: ({ color }) => <Library color={color} />,
+          title: 'library',
+          tabBarIcon: ({ color, size }) => <Library size={size} color={color} />,
         }}
       />
     </Tabs>
   );
 }
+
