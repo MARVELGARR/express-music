@@ -1,9 +1,9 @@
 import { View, Text, TextInput, TextInputChangeEvent } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { Stack } from 'expo-router'
-import { Search } from 'lucide-react-native';
 import SearchBar from '@/features/search/component/searchBar';
 import useDebounce from '@/features/universal/hooks/useDebounce';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & {
@@ -14,7 +14,7 @@ export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & 
 
 
 
-const search = () => {
+export const search = () => {
 
 
 
@@ -25,25 +25,20 @@ const search = () => {
 
     const SCREEN_OPTIONS: ScreenType = {
         headerTitle: "",
-        headerTransparent: true,
-        headerRight: ({ tintColor }) => (
-            <View className='flex-1 flex-row items-center '>
-
-                <SearchBar onChange={setSearchTerm} value={searchTerm} ref={searchRef} />
-            </View>
-        ),
-
+        headerShown: false,
+        headerBackVisible: true,
 
     };
 
     return (
 
-        <>
-            <Stack.Screen options={SCREEN_OPTIONS} />
-            <View>
+        <SafeAreaView>
 
-            </View>
-        </>
+            <Stack.Screen options={SCREEN_OPTIONS} />
+            <SearchBar className="" onChange={setSearchTerm} value={searchTerm} ref={searchRef} />
+
+        </SafeAreaView>
+
     )
 }
 

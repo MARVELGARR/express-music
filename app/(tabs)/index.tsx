@@ -8,6 +8,7 @@ import { MoonStarIcon, Search, Settings, SunIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & {
   singular?: boolean;
@@ -17,26 +18,7 @@ export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & 
 
 const SCREEN_OPTIONS: ScreenType = {
   headerTitle: "",
-  headerTransparent: true,
-  headerRight: ({ tintColor }) => (
-    <View className='flex-1 flex-row items-center '>
-      <Link href={"/search"} className='flex-1'>
-        <View className=' w-full gap-4 flex bg-muted flex-row items-center border-primary border p-1 rounded-xl '>
-          <Search size={20} color={tintColor} />
-          <Text className='text-muted-foreground '>Search songs, playlist and artist</Text>
-        </View>
-      </Link>
-      <ThemeToggle />
-    </View>
-  ),
-  headerLeft: ({ tintColor }) => (
-    <>
-      <Link className='p-2' href={"/settings"}>
-        <Settings color={tintColor} className='text-foreground' />
-      </Link>
-    </>
-  )
-
+  headerShown: false,
 };
 
 
@@ -44,9 +26,27 @@ const SCREEN_OPTIONS: ScreenType = {
 export default function Screen() {
 
   return (
-    <>
+    <SafeAreaView>
       <Stack.Screen options={SCREEN_OPTIONS} />
-    </>
+      <View className='flex flex-row items-center justify-between'>
+        <View>
+          <Link className='p-2' href={"/settings"}>
+            <Settings className='text-foreground' />
+          </Link>
+        </View>
+        <View className='flex-1'>
+          <Link href={"/search"} className=''>
+            <View className=' w-full gap-4 flex bg-muted flex-row items-center border-primary border p-1 rounded-xl '>
+              <Search size={20} />
+              <Text className='text-muted-foreground '>Search songs, playlist and artist</Text>
+            </View>
+          </Link>
+        </View>
+        <ThemeToggle />
+      </View>
+
+    </SafeAreaView>
+
   );
 }
 
