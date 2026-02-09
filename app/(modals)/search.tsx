@@ -10,6 +10,10 @@ import SearchBar from '@/features/search/component/searchBar';
 import RecentSearch from '@/features/search/component/resent-search';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import SearchResults from '@/features/search/component/search-results';
+>>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
 =======
 import SearchResults from '@/features/search/component/search-results';
 >>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
@@ -65,9 +69,12 @@ export const Search = () => {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             <RecentSearch onSearchSelect={setSearchTerm} />
 
 =======
+=======
+>>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
 =======
 >>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
             {debouncedValue.trim() ? (
@@ -80,6 +87,9 @@ export const Search = () => {
                 <RecentSearch onSearchSelect={setSearchTerm} />
             )}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
+=======
 >>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
 =======
 >>>>>>> 5c9447a8a5722c1246a1170b4b01de615692d817
