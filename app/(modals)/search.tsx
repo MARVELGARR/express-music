@@ -4,6 +4,7 @@ import { Stack } from 'expo-router'
 import SearchBar from '@/features/search/component/searchBar';
 import useDebounce from '@/features/universal/hooks/useDebounce';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Backpack, SkipBack } from 'lucide-react-native';
 
 
 export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & {
@@ -34,8 +35,9 @@ export const search = () => {
 
         <SafeAreaView>
 
-            <Stack.Screen options={SCREEN_OPTIONS} />
+
             <SearchBar className="" onChange={setSearchTerm} value={searchTerm} ref={searchRef} />
+
 
         </SafeAreaView>
 

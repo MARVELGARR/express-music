@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon'
 import { } from '@/components/ui/text';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import { MoonStarIcon, Search, Settings, SunIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
@@ -16,18 +16,11 @@ export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & 
 
 
 
-const SCREEN_OPTIONS: ScreenType = {
-  headerTitle: "",
-  headerShown: false,
-};
-
-
-
 export default function Screen() {
 
   return (
     <SafeAreaView>
-      <Stack.Screen options={SCREEN_OPTIONS} />
+
       <View className='flex flex-row items-center justify-between'>
         <View>
           <Link className='p-2' href={"/settings"}>

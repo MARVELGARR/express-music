@@ -5,8 +5,9 @@ import React from 'react'
 
 const _layout = () => {
     return (
+
         <Stack screenOptions={{
-            headerShown: true,
+            headerShown: false,
             presentation: "modal"
         }} />
 
