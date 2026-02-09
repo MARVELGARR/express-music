@@ -20,7 +20,7 @@ export type ScreenType = React.ComponentProps<typeof Stack.Screen>["options"] & 
 
 
 
-export const search = () => {
+export const Search = () => {
 
 
 
@@ -47,4 +47,4 @@ export const search = () => {
     )
 }
 
-export default search
+export default Search

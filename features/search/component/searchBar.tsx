@@ -17,7 +17,12 @@ type searchBarType = {
 const SearchBar = ({ className, onChange, value, ref }: searchBarType) => {
 
     useEffect(() => {
-        ref.current?.focus()
+        const timeOut = setTimeout(() => {
+
+            ref.current?.focus()
+        }, 500)
+
+        return () => clearTimeout(timeOut)
     }, [])
 
     return (
