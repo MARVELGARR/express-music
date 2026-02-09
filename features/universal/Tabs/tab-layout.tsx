@@ -2,12 +2,11 @@
 
 
 import { Tabs } from 'expo-router';
-import { Home, Search, Library } from 'lucide-react-native';
-import { StyleSheet } from 'nativewind';
+import { Home, Library } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ animation: "none", }}>
+    <Tabs screenOptions={{ animation: "none", headerShown: false }}>
       <Tabs.Screen
         name="index" // Matches index.tsx
         options={{

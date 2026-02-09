@@ -21,10 +21,10 @@ const SearchBar = ({ className, onChange, value, ref }: searchBarType) => {
     }, [])
 
     return (
-        <Pressable style={{ height: 40 }} className={cn(className, ' flex items-center flex-row border rounded-md')} onPress={() => ref.current?.focus()}>
+        <Pressable style={{ height: 30 }} className={cn(className, '  flex items-center flex-row border rounded-md')} onPress={() => ref.current?.focus()}>
 
-            <Search style={{ marginLeft: 4 }} size={25} className=' ' />
-            <TextInput style={{ marginLeft: 4, }} className=' border-none outline-none ' onChangeText={(value) => onChange(value)} value={value} ref={ref} placeholder='Search songs, playlist and artist...' />
+            <Search style={{ marginLeft: 4 }} size={20} className=' ' />
+            <TextInput style={{ marginLeft: 4, height: 40 }} className=' border-none outline-none' onChangeText={(value) => onChange(value)} value={value} ref={ref} placeholder='Search songs, playlist and artist...' />
 
         </Pressable>
     )
