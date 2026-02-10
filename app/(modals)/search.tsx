@@ -7,6 +7,7 @@ import { TextInput, View } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { Stack } from 'expo-router'
 import SearchBar from '@/features/search/component/searchBar';
+import RecentSearch from '@/features/search/component/resent-search';
 import useDebounce from '@/features/universal/hooks/useDebounce';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Backbutton from '@/features/universal/components/back-button';
@@ -40,7 +41,7 @@ export const Search = () => {
                 <SearchBar className=" flex-1" onChange={setSearchTerm} value={searchTerm} ref={searchRef} />
             </View>
 
-
+            <RecentSearch onSearchSelect={setSearchTerm} />
 
         </SafeAreaView>
 
