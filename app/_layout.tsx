@@ -1,3 +1,4 @@
+import { useMediaLibrarys } from '@/core/media-library';
 import '@/global.css';
 
 import { NAV_THEME } from '@/lib/theme';
@@ -15,13 +16,23 @@ export {
 } from 'expo-router';
 
 import * as React from 'react';
+import { useEffect } from 'react';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
 
-  React.useEffect(() => {
-    SplashScreen.hideAsync();
+  const { getPermissions, songs } = useMediaLibrarys();
+
+
+
+  useEffect(() => {
+    getPermissions();
+    if (songs) {
+      SplashScreen.hideAsync();
+    }
   }, []);
+
+
 
   return (
     <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
