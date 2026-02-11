@@ -27,7 +27,7 @@ export default function RecentSearch({ onSearchSelect }: { onSearchSelect?: (sea
     }
 
     const removeSearch = async (search: string) => {
-        const updated = recentSearches.filter(item => item !== search)
+        const updated = recentSearches.filter((item: string) => item !== search)
         setRecentSearches(updated)
         try {
             await AsyncStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated))
@@ -58,7 +58,7 @@ export default function RecentSearch({ onSearchSelect }: { onSearchSelect?: (sea
                 </Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className='flex flex-row'>
-                {recentSearches.map((search, index) => (
+                {recentSearches.map((search: string, index: number) => (
                     <Pressable
                         key={index}
                         onPress={() => onSearchSelect?.(search)}
