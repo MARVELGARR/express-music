@@ -1,24 +1,28 @@
 import * as MediaLibrary from "expo-media-library";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
-import { MusicInfo, MusicInfoResponse } from "expo-music-info-2"
 
-export type MediaLibraryType = MediaLibrary.Asset & MusicInfoResponse
+
+export type MediaLibraryType = MediaLibrary.Asset
 
 
 export const useMediaLibrarys = () =>{
     const [songs, setSongs] =useState<MediaLibraryType[]>([])
     const [isGettingAudios, setIsGettingUdios] = useState(false)
 
+    useEffect(() => {
+        getPermissions();
+    }, [])
+
     const getPermissions = async () =>{
         setIsGettingUdios(true)
         const permissions = await MediaLibrary.requestPermissionsAsync()
-        if(!permissions.granted){
+        if(permissions.granted){
             getAudioFiles();
-            return setIsGettingUdios(false)
+        } else {
+            setIsGettingUdios(false)
         }
-        
     }
 
     const getAudioFiles = async () => {
@@ -26,20 +30,9 @@ export const useMediaLibrarys = () =>{
             mediaType: MediaLibrary.MediaType.audio,
         });
 
-        const songsWithMetadata = await Promise.all(
-            assets.map(async (asset) => {
-                const metadata = await MusicInfo.getMusicInfoAsync(asset.uri, {
-                    album: true,
-                    artist: true,
-                    picture: true,
-                    genre: true,
-                    title: true,
-                });
-                return { ...asset, ...metadata };
-            })
-        )
+        
 
-        setSongs(songsWithMetadata as any);
+        setSongs(assets);
         setIsGettingUdios(false);
     };
     
