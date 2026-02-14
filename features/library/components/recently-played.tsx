@@ -5,28 +5,28 @@ import { Music2, Play } from 'lucide-react-native';
 import MusicInfo from 'expo-music-info-2';
 
 import { MediaLibraryType, useMediaLibrarys } from '@/core/media-library';
+import { SongInfo } from '@/core/audio-player';
+import { usePlayer } from '@/features/player/hooks/usePlayer';
 
 import { vs, s } from "react-native-size-matters"
 
-import { useAudioPlayer } from 'expo-audio';
-
 export const RecentlyPlayed = () => {
 
-    const { songs, isGettingAudios } = useMediaLibrarys()
+    const { songs } = useMediaLibrarys()
 
     return (
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {
                 songs.map((song, index) => (
-                    <RecentlyPlayedItem key={index} song={song} />
+                    <RecentlyPlayedItem key={index} song={song} allSongs={songs} />
                 ))
             }
         </ScrollView>
     )
 }
 
-const RecentlyPlayedItem = ({ song }: { song: MediaLibraryType }) => {
-    const player = useAudioPlayer(song.uri);
+const RecentlyPlayedItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: MediaLibraryType[] }) => {
+    const player = usePlayer();
     const [musicInfo, setMusicInfo] = React.useState<any>(null);
 
     const fetchMusicInfo = async () => {
@@ -44,7 +44,6 @@ const RecentlyPlayedItem = ({ song }: { song: MediaLibraryType }) => {
     };
 
     useEffect(() => {
-
         fetchMusicInfo();
     }, [song.uri]);
 
@@ -52,9 +51,19 @@ const RecentlyPlayedItem = ({ song }: { song: MediaLibraryType }) => {
     const artist = musicInfo?.artist || "Unknown Artist";
     const imageUri = musicInfo?.picture?.pictureData;
 
+    const handlePlay = () => {
+        const songInfo: SongInfo = { song, title, artist, imageUri };
+        const queue: SongInfo[] = allSongs.map((s) => ({
+            song: s,
+            title: s.filename.split('.')[0],
+            artist: 'Unknown Artist',
+        }));
+        player.play(songInfo, queue);
+    };
+
     return (
         <TouchableOpacity
-            onPress={() => player.play()}
+            onPress={handlePlay}
             style={styles.itemContainer}
             activeOpacity={0.7}
         >
@@ -73,8 +82,8 @@ const RecentlyPlayedItem = ({ song }: { song: MediaLibraryType }) => {
                 </View>
             </ImageBackground>
             <View style={styles.textContainer}>
-                <Text style={styles.title} numberOfLines={0}>{title}</Text>
-                <Text style={styles.artist} numberOfLines={0}>{artist}</Text>
+                <Text style={styles.title} numberOfLines={1}>{title}</Text>
+                <Text style={styles.artist} numberOfLines={1}>{artist}</Text>
             </View>
         </TouchableOpacity>
     )
