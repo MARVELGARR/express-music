@@ -51,27 +51,27 @@ const styles = StyleSheet.create({
         marginVertical: vs(12),
     },
     scrollContent: {
-        paddingHorizontal: s(16),
+        borderColor: "red",
+        borderWidth: vs(1)
     },
     tabButton: {
         paddingHorizontal: s(16),
         paddingVertical: vs(6),
-        borderRadius: s(20),
-        marginRight: s(8),
+        // marginRight: s(8),
         backgroundColor: 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
+        borderWidth: vs(1),
         borderColor: 'rgba(255,255,255,0.1)',
     },
     activeTabButton: {
-        backgroundColor: '#fff', // Or use a theme color if available
+        backgroundColor: 'brown', // Or use a theme color if available
         borderColor: '#fff',
     },
     tabText: {
         fontSize: s(13),
         fontWeight: '500',
-        color: 'rgba(255,255,255,0.6)',
+        color: 'blacl',
     },
     activeTabText: {
-        color: '#000',
+        color: 'white',
     },
 })

@@ -1,4 +1,7 @@
-import TabLayout from '@/features/universal/Tabs/tab-layout'
+
+
+
+import TabLayout from '@/navigation/Tabs/tab-layout'
 import React from 'react'
 
 export default function Tabloid() {

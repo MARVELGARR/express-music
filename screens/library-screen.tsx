@@ -13,11 +13,10 @@ export default function LibraryScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="bg-background">
 
-                    <View style={libraryStyles.title}>
+                    {/* <View style={libraryStyles.title}>
                         <Text className="text-foreground text-2xl font-bold">Library</Text>
-                    </View>
+                    </View> */}
 
-                    <LibraryTab />
 
                     <View style={libraryStyles.sectionHeader}>
                         <Text className="text-foreground font-semibold text-lg">Recently Played</Text>
@@ -31,6 +30,7 @@ export default function LibraryScreen() {
                     </View>
 
                     <RecentlyPlayed />
+                    <LibraryTab />
 
                 </View>
             </ScrollView>
