@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { RecentlyPlayed } from '@/features/library/components/recently-played';
 import { LibraryTab } from '@/features/library/components/library-tab';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 
 export default function LibraryScreen() {
     const router = useRouter();
@@ -25,7 +25,9 @@ export default function LibraryScreen() {
                                 // Navigate to full recently played screen when route is set up
                             }}
                         >
-                            <Text style={libraryStyles.seeAll}>See all</Text>
+                            <Link href="/(app)/recentlyplayed">
+                                <Text style={libraryStyles.seeAll}>See all</Text>
+                            </Link>
                         </TouchableOpacity>
                     </View>
 

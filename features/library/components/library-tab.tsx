@@ -49,20 +49,23 @@ export const LibraryTab = () => {
 const styles = StyleSheet.create({
     container: {
         marginVertical: vs(12),
-
+        width: "100%"
     },
     scrollContent: {
         borderColor: "red",
         borderWidth: vs(1),
-        width: "100%"
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-between",
+
     },
     tabButton: {
         paddingHorizontal: s(16),
         paddingVertical: vs(6),
-        flexBasis: 1,
         backgroundColor: 'rgba(255,255,255,0.05)',
         borderWidth: vs(1),
         borderColor: 'rgba(255,255,255,0.1)',
+
     },
     activeTabButton: {
         backgroundColor: 'brown', // Or use a theme color if available

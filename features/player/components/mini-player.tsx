@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Play, Pause, SkipForward, Music2 } from 'lucide-react-native';
+import { Play, Pause, SkipForward, Music2, SkipBack } from 'lucide-react-native';
 import { s, vs } from 'react-native-size-matters';
 import { usePlayer } from '../hooks/usePlayer';
 
 export const MiniPlayer = () => {
-    const { currentSong, isPlaying, togglePlayback, next } = usePlayer();
+    const { currentSong, isPlaying, togglePlayback, next, previous } = usePlayer();
 
     if (!currentSong) return null;
 
@@ -37,6 +37,14 @@ export const MiniPlayer = () => {
 
             {/* Controls */}
             <View style={styles.controls}>
+
+                <TouchableOpacity onPress={previous}
+                    style={styles.controlButton}
+                    activeOpacity={0.7}>
+                    <SkipBack size={s(18)} color="white" fill="white" />
+
+                </TouchableOpacity>
+
                 <TouchableOpacity
                     onPress={togglePlayback}
                     style={styles.controlButton}

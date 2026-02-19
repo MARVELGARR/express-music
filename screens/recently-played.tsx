@@ -69,6 +69,9 @@ const SongListItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: Me
         player.play(songInfo, queue);
     };
 
+
+
+
     return (
         <TouchableOpacity style={styles.songItem} onPress={handlePlay} activeOpacity={0.7}>
             {imageUri ? (
@@ -92,7 +95,6 @@ const SongListItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: Me
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
 
     },
     header: {

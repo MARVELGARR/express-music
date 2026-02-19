@@ -10,6 +10,7 @@ export type MediaLibraryType = MediaLibrary.Asset
 export const useMediaLibrarys = () =>{
     const [songs, setSongs] =useState<MediaLibraryType[]>([])
     const [isGettingAudios, setIsGettingUdios] = useState(false)
+    const [recentPlays, setRecentPlays] = useState([])
 
     useEffect(() => {
         getPermissions();
@@ -28,10 +29,19 @@ export const useMediaLibrarys = () =>{
     const getAudioFiles = async () => {
         const { assets } = await MediaLibrary.getAssetsAsync({
             mediaType: MediaLibrary.MediaType.audio,
+            
         });
 
         
 
+        setSongs(assets);
+        setIsGettingUdios(false);
+    };
+    const getAllAudioFiles = async () => {
+        const { assets } = await MediaLibrary.getAssetsAsync({
+            mediaType: MediaLibrary.MediaType.audio,
+            
+        });
         setSongs(assets);
         setIsGettingUdios(false);
     };
