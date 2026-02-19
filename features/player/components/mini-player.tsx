@@ -73,6 +73,8 @@ const styles = StyleSheet.create({
         marginHorizontal: s(8),
         marginBottom: vs(4),
         borderRadius: s(12),
+        position: "absolute",
+        bottom: 110,
     },
     artworkContainer: {
         marginRight: s(12),
