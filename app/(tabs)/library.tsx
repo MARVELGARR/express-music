@@ -1,6 +1,7 @@
 import React from 'react';
 import LibraryScreen from '@/screens/library-screen';
 
-export default function Library() {
+// Library tab — thin route wrapper for expo-router
+export default function LibraryTab() {
     return <LibraryScreen />;
 }
