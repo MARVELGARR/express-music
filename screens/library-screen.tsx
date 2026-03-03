@@ -13,9 +13,9 @@ export default function LibraryScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="bg-background">
 
-                    {/* <View style={libraryStyles.title}>
+                    <View style={libraryStyles.title}>
                         <Text className="text-foreground text-2xl font-bold">Library</Text>
-                    </View> */}
+                    </View>
 
 
                     <View style={libraryStyles.sectionHeader}>

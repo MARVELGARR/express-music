@@ -1,3 +1,6 @@
+
+
+
 import { DarkTheme, DefaultTheme, type Theme } from '@react-navigation/native';
  
 export const THEME = {
