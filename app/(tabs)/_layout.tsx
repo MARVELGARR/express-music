@@ -11,21 +11,6 @@ export default function TabLayout() {
             screenOptions={{
                 animation: 'none',
                 headerShown: false,
-                tabBarStyle: {
-                    backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
-                    borderTopColor: isDark ? '#1c1c1e' : '#e5e5ea',
-                    borderTopWidth: 1,
-                    paddingBottom: 6,
-                    paddingTop: 6,
-                    height: 60,
-                },
-                tabBarActiveTintColor: 'black',
-                tabBarInactiveTintColor: isDark ? '#666' : '#aaa',
-                tabBarLabelStyle: {
-                    fontSize: 11,
-                    fontWeight: '600',
-                    marginTop: 2,
-                },
             }}
         >
             <Tabs.Screen
