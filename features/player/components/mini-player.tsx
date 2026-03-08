@@ -1,125 +1,208 @@
+/**
+ * MiniPlayer — Persistent mini playback bar.
+ * Modern monochrome design with progress bar, artwork, and controls.
+ * Theme-aware for light/dark modes.
+ */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Play, Pause, SkipForward, Music2, SkipBack } from 'lucide-react-native';
+import {
+    Play,
+    Pause,
+    SkipForward,
+    SkipBack,
+    Music2,
+} from 'lucide-react-native';
 import { s, vs } from 'react-native-size-matters';
 import { usePlayer } from '../hooks/usePlayer';
+import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 
 export const MiniPlayer = () => {
-    const { currentSong, isPlaying, togglePlayback, next, previous } = usePlayer();
+    const {
+        currentSong,
+        isPlaying,
+        togglePlayback,
+        next,
+        previous,
+        position,
+        duration,
+    } = usePlayer();
+    const { colors } = useThemeColors();
 
     if (!currentSong) return null;
 
+    const progress = duration > 0 ? position / duration : 0;
+
     return (
-        <View style={styles.container}>
-            {/* Artwork */}
-            <View style={styles.artworkContainer}>
-                {currentSong.imageUri ? (
-                    <Image
-                        source={{ uri: currentSong.imageUri }}
-                        style={styles.artwork}
-                    />
-                ) : (
-                    <View style={styles.artworkPlaceholder}>
-                        <Music2 size={s(16)} color="#888" />
-                    </View>
-                )}
+        <View
+            style={[
+                styles.wrapper,
+                {
+                    backgroundColor: colors.playerBg,
+                    borderColor: colors.playerBorder,
+                },
+            ]}
+        >
+            {/* Progress bar — thin line at top */}
+            <View style={[styles.progressTrack, { backgroundColor: colors.divider }]}>
+                <View
+                    style={[
+                        styles.progressFill,
+                        {
+                            width: `${progress * 100}%`,
+                            backgroundColor: colors.accent,
+                        },
+                    ]}
+                />
             </View>
 
-            {/* Song Info */}
-            <View style={styles.infoContainer}>
-                <Text style={styles.title} numberOfLines={1}>
-                    {currentSong.title}
-                </Text>
-                <Text style={styles.artist} numberOfLines={1}>
-                    {currentSong.artist}
-                </Text>
-            </View>
-
-            {/* Controls */}
-            <View style={styles.controls}>
-
-                <TouchableOpacity onPress={previous}
-                    style={styles.controlButton}
-                    activeOpacity={0.7}>
-                    <SkipBack size={s(18)} color="white" fill="white" />
-
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={togglePlayback}
-                    style={styles.controlButton}
-                    activeOpacity={0.7}
+            <View style={styles.inner}>
+                {/* Artwork */}
+                <View
+                    style={[
+                        styles.artwork,
+                        { backgroundColor: colors.skeleton },
+                    ]}
                 >
-                    {isPlaying ? (
-                        <Pause size={s(20)} color="white" fill="white" />
+                    {currentSong.imageUri ? (
+                        <Image
+                            source={{ uri: currentSong.imageUri }}
+                            style={styles.artworkImage}
+                        />
                     ) : (
-                        <Play size={s(20)} color="white" fill="white" />
+                        <Music2 size={s(16)} color={colors.textTertiary} />
                     )}
-                </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity
-                    onPress={next}
-                    style={styles.controlButton}
-                    activeOpacity={0.7}
-                >
-                    <SkipForward size={s(18)} color="white" fill="white" />
-                </TouchableOpacity>
+                {/* Info */}
+                <View style={styles.info}>
+                    <Text
+                        style={[styles.title, { color: colors.text }]}
+                        numberOfLines={1}
+                    >
+                        {currentSong.title}
+                    </Text>
+                    <Text
+                        style={[styles.artist, { color: colors.textSecondary }]}
+                        numberOfLines={1}
+                    >
+                        {currentSong.artist}
+                    </Text>
+                </View>
+
+                {/* Controls */}
+                <View style={styles.controls}>
+                    <TouchableOpacity
+                        onPress={previous}
+                        activeOpacity={0.6}
+                        hitSlop={8}
+                    >
+                        <SkipBack size={s(16)} color={colors.icon} fill={colors.icon} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={togglePlayback}
+                        activeOpacity={0.6}
+                        style={[
+                            styles.playBtn,
+                            { backgroundColor: colors.accent },
+                        ]}
+                    >
+                        {isPlaying ? (
+                            <Pause
+                                size={s(14)}
+                                color={colors.textInverted}
+                                fill={colors.textInverted}
+                            />
+                        ) : (
+                            <Play
+                                size={s(14)}
+                                color={colors.textInverted}
+                                fill={colors.textInverted}
+                            />
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={next}
+                        activeOpacity={0.6}
+                        hitSlop={8}
+                    >
+                        <SkipForward
+                            size={s(16)}
+                            color={colors.icon}
+                            fill={colors.icon}
+                        />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    wrapper: {
+        position: 'absolute',
+        bottom: vs(88),
+        left: s(10),
+        right: s(10),
+        borderRadius: s(14),
+        borderWidth: 1,
+        overflow: 'hidden',
+        // Shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    progressTrack: {
+        height: 2,
+        width: '100%',
+    },
+    progressFill: {
+        height: '100%',
+    },
+    inner: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#1c1c1e',
         paddingHorizontal: s(12),
-        paddingVertical: vs(8),
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
-        marginHorizontal: s(8),
-        marginBottom: vs(4),
-        borderRadius: s(12),
-        position: "absolute",
-        bottom: 110,
-    },
-    artworkContainer: {
-        marginRight: s(12),
+        paddingVertical: vs(10),
     },
     artwork: {
         width: s(40),
         height: s(40),
-        borderRadius: s(8),
-    },
-    artworkPlaceholder: {
-        width: s(40),
-        height: s(40),
-        borderRadius: s(8),
-        backgroundColor: '#2c2c2e',
+        borderRadius: s(10),
+        overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: s(12),
     },
-    infoContainer: {
+    artworkImage: {
+        width: '100%',
+        height: '100%',
+    },
+    info: {
         flex: 1,
         marginRight: s(8),
     },
     title: {
-        color: 'white',
-        fontSize: s(14),
-        fontWeight: '600',
+        fontSize: s(13),
+        fontWeight: '700',
     },
     artist: {
-        color: '#999',
-        fontSize: s(12),
-        marginTop: vs(2),
+        fontSize: s(11),
+        marginTop: vs(1),
     },
     controls: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: s(8),
+        gap: s(12),
     },
-    controlButton: {
-        padding: s(8),
+    playBtn: {
+        width: s(32),
+        height: s(32),
+        borderRadius: s(16),
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

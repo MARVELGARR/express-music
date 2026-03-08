@@ -1,55 +1,98 @@
-
-import { View, Text, ScrollView, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+/**
+ * RecentlyPlayed — Horizontal carousel of recently played songs on the home screen.
+ * Theme-aware monochrome design.
+ */
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Image,
+    StyleSheet,
+} from 'react-native';
 import { Music2, Play } from 'lucide-react-native';
 import MusicInfo from 'expo-music-info-2';
+import { s, vs } from 'react-native-size-matters';
+import { Link } from 'expo-router';
 
 import { MediaLibraryType, useMediaLibrarys } from '@/core/media-library';
 import { SongInfo } from '@/core/audio-player';
 import { usePlayer } from '@/features/player/hooks/usePlayer';
-
-import { vs, s } from "react-native-size-matters"
+import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 
 export const RecentlyPlayed = () => {
+    const { songs } = useMediaLibrarys();
+    const { colors } = useThemeColors();
 
-    const { songs } = useMediaLibrarys()
+    // Show only the first 10 songs as "recently played"
+    const recentSongs = songs.slice(0, 10);
+
+    if (recentSongs.length === 0) return null;
 
     return (
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {
-                songs.map((song, index) => (
-                    <RecentlyPlayedItem key={index} song={song} allSongs={songs} />
-                ))
-            }
-        </ScrollView>
-    )
-}
+        <View>
+            {/* Section header */}
+            <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                    Recently Played
+                </Text>
+                <Link href="/(app)/recentlyplayed" asChild>
+                    <TouchableOpacity activeOpacity={0.6}>
+                        <Text style={[styles.seeAll, { color: colors.textTertiary }]}>
+                            See all
+                        </Text>
+                    </TouchableOpacity>
+                </Link>
+            </View>
 
-const RecentlyPlayedItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: MediaLibraryType[] }) => {
+            {/* Horizontal scroll */}
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {recentSongs.map((song, idx) => (
+                    <RecentItem
+                        key={idx}
+                        song={song}
+                        allSongs={songs}
+                    />
+                ))}
+            </ScrollView>
+        </View>
+    );
+};
+
+/* ─── Individual item ─── */
+
+const RecentItem = ({
+    song,
+    allSongs,
+}: {
+    song: MediaLibraryType;
+    allSongs: MediaLibraryType[];
+}) => {
+    const { colors } = useThemeColors();
     const player = usePlayer();
-    const [musicInfo, setMusicInfo] = React.useState<any>(null);
-
-    const fetchMusicInfo = async () => {
-        try {
-            const info = await MusicInfo.getMusicInfoAsync(song.uri, {
-                title: true,
-                artist: true,
-                album: true,
-                picture: true,
-            });
-            setMusicInfo(info);
-        } catch (error) {
-            console.error("Error fetching music info:", error);
-        }
-    };
+    const [info, setInfo] = useState<any>(null);
 
     useEffect(() => {
-        fetchMusicInfo();
+        (async () => {
+            try {
+                const data = await MusicInfo.getMusicInfoAsync(song.uri, {
+                    title: true,
+                    artist: true,
+                    picture: true,
+                });
+                setInfo(data);
+            } catch (_) { }
+        })();
     }, [song.uri]);
 
-    const title = musicInfo?.title || song.filename.split(".")[0];
-    const artist = musicInfo?.artist || "Unknown Artist";
-    const imageUri = musicInfo?.picture?.pictureData;
+    const title = info?.title || song.filename.split('.')[0];
+    const artist = info?.artist || 'Unknown Artist';
+    const imageUri = info?.picture?.pictureData;
 
     const handlePlay = () => {
         const songInfo: SongInfo = { song, title, artist, imageUri };
@@ -64,71 +107,102 @@ const RecentlyPlayedItem = ({ song, allSongs }: { song: MediaLibraryType; allSon
     return (
         <TouchableOpacity
             onPress={handlePlay}
-            style={styles.itemContainer}
             activeOpacity={0.7}
+            style={styles.itemContainer}
         >
-            <ImageBackground
-                source={imageUri ? { uri: imageUri } : require("@/assets/images/placeholder.jpg")}
-                style={styles.backgroundImage}
-                imageStyle={styles.imageStyle}
+            {/* Artwork */}
+            <View
+                style={[
+                    styles.artworkWrap,
+                    { backgroundColor: colors.skeleton },
+                ]}
             >
-                {!imageUri && (
-                    <View style={styles.placeholderContainer}>
-                        <Music2 size={s(30)} color="#666" />
+                {imageUri ? (
+                    <Image source={{ uri: imageUri }} style={styles.artwork} />
+                ) : (
+                    <View style={styles.placeholder}>
+                        <Music2 size={s(26)} color={colors.textTertiary} />
                     </View>
                 )}
-                <View style={styles.overlay}>
-                    <Play size={s(16)} color="white" fill="white" />
+                {/* Play badge */}
+                <View
+                    style={[styles.playBadge, { backgroundColor: colors.overlay }]}
+                >
+                    <Play size={s(12)} color="#FFFFFF" fill="#FFFFFF" />
                 </View>
-            </ImageBackground>
-            <View style={styles.textContainer}>
-                <Text style={styles.title} numberOfLines={1}>{title}</Text>
-                <Text style={styles.artist} numberOfLines={1}>{artist}</Text>
             </View>
+
+            <Text
+                style={[styles.title, { color: colors.text }]}
+                numberOfLines={1}
+            >
+                {title}
+            </Text>
+            <Text
+                style={[styles.artist, { color: colors.textSecondary }]}
+                numberOfLines={1}
+            >
+                {artist}
+            </Text>
         </TouchableOpacity>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
-    backgroundImage: {
-        width: s(120),
-        height: s(120),
-        borderRadius: s(12),
-        overflow: 'hidden',
-        backgroundColor: '#1a1a1a',
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: s(16),
+        marginBottom: vs(10),
+        marginTop: vs(20),
     },
-    imageStyle: {
-        borderRadius: s(12),
+    sectionTitle: {
+        fontSize: s(17),
+        fontWeight: '700',
+        letterSpacing: -0.3,
+    },
+    seeAll: {
+        fontSize: s(12),
+        fontWeight: '500',
+    },
+    scrollContent: {
+        paddingHorizontal: s(16),
     },
     itemContainer: {
-        marginRight: s(16),
         width: s(120),
+        marginRight: s(14),
     },
-    placeholderContainer: {
+    artworkWrap: {
+        width: s(120),
+        height: s(120),
+        borderRadius: s(14),
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    artwork: {
+        width: '100%',
+        height: '100%',
+    },
+    placeholder: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#262626',
     },
-    overlay: {
+    playBadge: {
         position: 'absolute',
         bottom: s(8),
         right: s(8),
-        backgroundColor: 'rgba(0,0,0,0.5)',
         padding: s(6),
-        borderRadius: s(20),
-    },
-    textContainer: {
-        marginTop: vs(8),
+        borderRadius: s(16),
     },
     title: {
-        color: 'white',
-        fontSize: s(13),
+        marginTop: vs(6),
+        fontSize: s(12),
         fontWeight: '600',
     },
     artist: {
-        color: '#999',
-        fontSize: s(11),
-        marginTop: vs(2),
-    }
-})
+        fontSize: s(10),
+        marginTop: vs(1),
+    },
+});

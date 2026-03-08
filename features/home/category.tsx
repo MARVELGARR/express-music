@@ -1,66 +1,88 @@
+/**
+ * CategoryFilter — Horizontally scrollable filter chips.
+ * Modern monochrome design with animated selection state.
+ */
+import React from 'react';
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
+import { useThemeColors } from './hooks/useThemeColors';
+import { s, vs } from 'react-native-size-matters';
+// import { s, vs } from 'react-native-size-matters';
+// import { useThemeColors } from '../hooks/useThemeColors';
 
+type Props = {
+    categories: readonly { readonly name: string }[];
+    selected: string;
+    onSelect: (name: string) => void;
+};
 
-
-
-import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { categoryTags } from "./constants"
-import { useTheme } from "@react-navigation/native"
-
-import { s, vs } from "react-native-size-matters"
-import { useState } from "react"
-
-
-
-
-export const Cartegory = () => {
-
-    const [selectedCategory, setSelectedCategory] = useState("")
-
-
-    const { dark } = useTheme()
-
-
-
-
+export const CategoryFilter = ({ categories, selected, onSelect }: Props) => {
+    const { colors } = useThemeColors();
 
     return (
-        <ScrollView horizontal showsVerticalScrollIndicator={false}>
-
-            <View className="">
-
-
-                <View className="" style={styles.categoryContainer} >
-
-                    {categoryTags.map((items, index) => {
-                        return (
-                            <Pressable onPress={() => setSelectedCategory(items.name)} key={index} >
-                                <View className="" style={[{ borderWidth: 2, borderColor: dark ? "white" : "black" }, styles.CartegoryTags]}>
-                                    <Text className="text-foreground ">{items.name}</Text>
-                                </View>
-                            </Pressable>
-
-
-                        )
-                    })}
-                </View>
-
-            </View>
+        <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+        >
+            {categories.map((cat, idx) => {
+                const isActive = selected === cat.name;
+                return (
+                    <TouchableOpacity
+                        key={idx}
+                        onPress={() => onSelect(cat.name)}
+                        activeOpacity={0.7}
+                        style={[
+                            styles.pill,
+                            {
+                                backgroundColor: isActive
+                                    ? colors.pillBgActive
+                                    : colors.pillBg,
+                                borderColor: isActive
+                                    ? colors.pillBgActive
+                                    : colors.border,
+                            },
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.pillText,
+                                {
+                                    color: isActive
+                                        ? colors.pillTextActive
+                                        : colors.pillText,
+                                },
+                            ]}
+                        >
+                            {cat.name}
+                        </Text>
+                    </TouchableOpacity>
+                );
+            })}
         </ScrollView>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
-
-    categoryContainer: {
-        display: "flex",
-        flexDirection: "row",
-        gap: 10,
-        padding: 5,
+    scrollContent: {
+        paddingHorizontal: s(16),
+        paddingVertical: vs(8),
+        gap: s(8),
     },
-    CartegoryTags: {
+    pill: {
+        paddingHorizontal: s(16),
+        paddingVertical: vs(7),
+        borderRadius: s(20),
         borderWidth: 1,
-        padding: 6,
-        borderRadius: 10,
-    }
-
-})
+    },
+    pillText: {
+        fontSize: s(12),
+        fontWeight: '600',
+        letterSpacing: 0.3,
+    },
+});

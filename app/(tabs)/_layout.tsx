@@ -27,13 +27,13 @@ export default function TabLayout() {
                     tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
                 }}
             />
-            <Tabs.Screen
+            {/* <Tabs.Screen
                 name="library"
                 options={{
                     title: 'Library',
                     tabBarIcon: ({ color, size }) => <Library size={size} color={color} />,
                 }}
-            />
+            /> */}
         </Tabs>
     );
 }
