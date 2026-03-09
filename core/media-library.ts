@@ -28,14 +28,25 @@ export const useMediaLibrarys = () => {
 
     const getAudioFiles = async () => {
         try {
-            const { assets, totalCount: total } =
-                await MediaLibrary.getAssetsAsync({
-                    mediaType: MediaLibrary.MediaType.audio,
-                    first: 200, // load up to 200 songs
-                    sortBy: [MediaLibrary.SortBy.modificationTime],
-                });
-            setSongs(assets);
-            setTotalCount(total);
+            let allAssets: MediaLibrary.Asset[] = [];
+            let hasNextPage = true;
+            let endCursor: string | undefined = undefined;
+
+            while (hasNextPage) {
+                const { assets, totalCount: total, hasNextPage: next, endCursor: cursor } =
+                    await MediaLibrary.getAssetsAsync({
+                        mediaType: MediaLibrary.MediaType.audio,
+                        first: 100,
+                        after: endCursor,
+                        sortBy: [MediaLibrary.SortBy.modificationTime],
+                    });
+                
+                allAssets = [...allAssets, ...assets];
+                hasNextPage = next;
+                endCursor = cursor;
+                setTotalCount(total);
+                setSongs([...allAssets]); // Incremental update
+            }
         } catch (e) {
             console.error('Error loading audio files:', e);
         } finally {

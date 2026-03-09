@@ -32,6 +32,11 @@ import { AllSongs } from '@/features/library/components/all_songs';
 import { ScrollableTab } from '@/features/library/components/tablist';
 import { useMediaLibrarys } from '@/core/media-library';
 import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { Albums } from '@/features/library/components/albums';
+import { Artists } from '@/features/library/components/artists';
+import { Favourites } from '@/features/library/components/favourites';
+import { MostPlayed } from '@/features/library/components/most-played';
+import { Folders } from '@/features/library/components/folders';
 
 const TABS = ['For You', 'Songs', 'Albums', 'Artists'];
 
@@ -182,38 +187,58 @@ const HomeScreen = () => {
                 {/* ─── Content based on active tab ─── */}
                 {activeTab === 'For You' && (
                     <>
-                        {/* Recently Played */}
-                        <RecentlyPlayed />
+                        {selectedCategory === 'All' ? (
+                            <>
+                                {/* Recently Played */}
+                                <RecentlyPlayed />
 
-                        {/* Category filters */}
-                        <View style={styles.sectionSpacing}>
-                            <Text
-                                style={[
-                                    styles.sectionTitle,
-                                    { color: colors.text },
-                                ]}
-                            >
-                                Browse
-                            </Text>
-                            <CategoryFilter
-                                categories={categoryTags}
-                                selected={selectedCategory}
-                                onSelect={setSelectedCategory}
-                            />
-                        </View>
+                                {/* Category filters */}
+                                <View style={styles.sectionSpacing}>
+                                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                        Browse
+                                    </Text>
+                                    <CategoryFilter
+                                        categories={categoryTags}
+                                        selected={selectedCategory}
+                                        onSelect={setSelectedCategory}
+                                    />
+                                </View>
 
-                        {/* Songs list preview */}
-                        <View style={styles.sectionSpacing}>
-                            <View style={styles.sectionHeaderRow}>
-                                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                                    All Songs
-                                </Text>
-                                <Text style={[styles.countBadge, { color: colors.textTertiary }]}>
-                                    {totalCount} tracks
-                                </Text>
+                                {/* Songs list preview */}
+                                <View style={styles.sectionSpacing}>
+                                    <View style={styles.sectionHeaderRow}>
+                                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                            All Songs
+                                        </Text>
+                                        <Text style={[styles.countBadge, { color: colors.textTertiary }]}>
+                                            {totalCount} tracks
+                                        </Text>
+                                    </View>
+                                </View>
+                                <AllSongs maxItems={15} />
+                            </>
+                        ) : (
+                            <View style={{ flex: 1 }}>
+                                <View style={styles.sectionSpacing}>
+                                    <CategoryFilter
+                                        categories={categoryTags}
+                                        selected={selectedCategory}
+                                        onSelect={setSelectedCategory}
+                                    />
+                                </View>
+                                <View style={[styles.sectionSpacing, styles.sectionHeaderRow]}>
+                                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                        {selectedCategory}
+                                    </Text>
+                                </View>
+                                {selectedCategory === 'Recently Played' && <AllSongs maxItems={30} />}
+                                {selectedCategory === 'Most Played' && <MostPlayed />}
+                                {selectedCategory === 'Favourites' && <Favourites />}
+                                {selectedCategory === 'Albums' && <Albums />}
+                                {selectedCategory === 'Artists' && <Artists />}
+                                {selectedCategory === 'Folders' && <Folders />}
                             </View>
-                        </View>
-                        <AllSongs maxItems={15} />
+                        )}
                     </>
                 )}
 
@@ -232,18 +257,30 @@ const HomeScreen = () => {
                 )}
 
                 {activeTab === 'Albums' && (
-                    <View style={styles.comingSoon}>
-                        <Text style={[styles.comingSoonText, { color: colors.textTertiary }]}>
-                            Albums — Coming Soon
-                        </Text>
+                    <View>
+                        <View style={[styles.sectionSpacing, styles.sectionHeaderRow]}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                All Albums
+                            </Text>
+                            <Text style={[styles.countBadge, { color: colors.textTertiary }]}>
+                                Device Albums
+                            </Text>
+                        </View>
+                        <Albums />
                     </View>
                 )}
 
                 {activeTab === 'Artists' && (
-                    <View style={styles.comingSoon}>
-                        <Text style={[styles.comingSoonText, { color: colors.textTertiary }]}>
-                            Artists — Coming Soon
-                        </Text>
+                    <View>
+                        <View style={[styles.sectionSpacing, styles.sectionHeaderRow]}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                All Artists
+                            </Text>
+                            <Text style={[styles.countBadge, { color: colors.textTertiary }]}>
+                                Device Artists
+                            </Text>
+                        </View>
+                        <Artists />
                     </View>
                 )}
             </ScrollView>

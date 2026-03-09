@@ -13,6 +13,7 @@ import React, {
 } from 'react';
 import { useAudioPlayer, AudioPlayer } from 'expo-audio';
 import { MediaLibraryType } from './media-library';
+import { storage } from './storage';
 
 /* ─── Types ─── */
 
@@ -103,6 +104,9 @@ export const AudioPlayerProvider = ({
             setTimeout(() => {
                 playerRef.current?.play();
             }, 100);
+
+            // Increment play count
+            storage.incrementPlayCount(songInfo.song.uri);
         },
         []
     );
