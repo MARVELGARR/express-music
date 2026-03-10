@@ -9,66 +9,77 @@ import {
     ScrollView,
     TouchableOpacity,
     StyleSheet,
+    FlatList,
 } from 'react-native';
 import { s, vs } from 'react-native-size-matters';
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 
 export type ScrollableTabProp = {
+    tab?: string
     tabs: string[];
     activeTab: string;
     onTabChange: (tab: string) => void;
 };
 
 export const ScrollableTab = ({ tabs, activeTab, onTabChange }: ScrollableTabProp) => {
-    const { colors } = useThemeColors();
+
 
     return (
         <View style={styles.container}>
-            <ScrollView
+            <FlatList
+                data={tabs}
+                keyExtractor={(item, idx) => item ?? idx.toString()}
+                renderItem={({ item, index }) => <ScrollTab activeTab={activeTab} onTabChange={onTabChange} tab={item} tabs={tabs} />}
                 horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {tabs.map((tab) => {
-                    const isActive = activeTab === tab;
-                    return (
-                        <TouchableOpacity
-                            key={tab}
-                            onPress={() => onTabChange(tab)}
-                            activeOpacity={0.7}
-                            style={[
-                                styles.tab,
-                                {
-                                    backgroundColor: isActive
-                                        ? colors.pillBgActive
-                                        : 'transparent',
-                                    borderColor: isActive
-                                        ? colors.pillBgActive
-                                        : colors.border,
-                                },
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    {
-                                        color: isActive
-                                            ? colors.pillTextActive
-                                            : colors.pillText,
-                                    },
-                                ]}
-                            >
-                                {tab}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
+                contentContainerStyle={styles.list}
+            />
         </View>
     );
 };
 
+
+const ScrollTab = ({ tab, activeTab, onTabChange }: ScrollableTabProp) => {
+    const isActive = activeTab === tab;
+    const { colors } = useThemeColors();
+    return (
+        <TouchableOpacity
+            key={tab}
+            onPress={() => onTabChange(tab as string)}
+            activeOpacity={0.7}
+            style={[
+                styles.tab,
+                {
+                    backgroundColor: isActive
+                        ? colors.pillBgActive
+                        : 'transparent',
+                    borderColor: isActive
+                        ? colors.pillBgActive
+                        : colors.border,
+                },
+            ]}
+        >
+            <Text
+                style={[
+                    styles.tabText,
+                    {
+                        color: isActive
+                            ? colors.pillTextActive
+                            : colors.pillText,
+                    },
+                ]}
+            >
+                {tab}
+            </Text>
+        </TouchableOpacity>
+    )
+}
+
+
+
 const styles = StyleSheet.create({
+    list: {
+        paddingHorizontal: s(16),
+    },
     container: {
         marginVertical: vs(6),
     },

@@ -3,7 +3,7 @@
  * Supports pagination (`first` param) and returns loading state.
  */
 import * as MediaLibrary from 'expo-media-library';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export type MediaLibraryType = MediaLibrary.Asset;
 
@@ -26,7 +26,9 @@ export const useMediaLibrarys = () => {
         }
     };
 
-    const getAudioFiles = async () => {
+    
+
+    const getAudioFiles = useCallback( async () => {
         try {
             let allAssets: MediaLibrary.Asset[] = [];
             let hasNextPage = true;
@@ -52,7 +54,7 @@ export const useMediaLibrarys = () => {
         } finally {
             setIsGettingAudios(false);
         }
-    };
+    }, [songs]);
 
     return {
         songs,

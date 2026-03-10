@@ -5,9 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { s, vs } from 'react-native-size-matters';
 import { useMediaLibrarys } from '@/core/media-library';
-import { SongRow } from './song-row';
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 import { storage } from '@/core/storage';
+import { SongRow } from '@/features/library/components/song-row';
 
 export const Favourites = () => {
     const { songs, isGettingAudios } = useMediaLibrarys();

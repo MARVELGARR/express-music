@@ -26,10 +26,12 @@ export const CategoryFilter = ({ categories, selected, onSelect }: Props) => {
 
     return (
         <ScrollView
-            horizontal
+            horizontal={true}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
         >
+
+
             {categories.map((cat, idx) => {
                 const isActive = selected === cat.name;
                 return (
@@ -64,6 +66,7 @@ export const CategoryFilter = ({ categories, selected, onSelect }: Props) => {
                     </TouchableOpacity>
                 );
             })}
+
         </ScrollView>
     );
 };

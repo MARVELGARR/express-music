@@ -6,8 +6,8 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { s, vs } from 'react-native-size-matters';
 import { useMediaLibrarys } from '@/core/media-library';
-import { SongRow } from './song-row';
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
+import { SongRow } from '@/features/library/components/song-row';
 
 type Props = {
     filter?: string;
@@ -50,20 +50,24 @@ export const AllSongs = ({ filter, maxItems }: Props) => {
     }
 
     return (
-        <FlatList
-            data={data}
-            keyExtractor={(item, idx) => item.id ?? idx.toString()}
-            renderItem={({ item, index }) => (
-                <SongRow
-                    song={item}
-                    allSongs={songs}
-                    index={index}
-                    showIndex
-                />
-            )}
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-        />
+        <View>
+
+            <FlatList
+                data={data}
+                keyExtractor={(item, idx) => item.id ?? idx.toString()}
+                renderItem={({ item, index }) => (
+                    <SongRow
+                        song={item}
+                        allSongs={songs}
+                        index={index}
+                        showIndex
+                    />
+                )}
+                contentContainerStyle={styles.list}
+                showsVerticalScrollIndicator={false}
+
+            />
+        </View>
     );
 };
 
