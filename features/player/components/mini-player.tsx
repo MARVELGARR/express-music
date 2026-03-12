@@ -16,6 +16,8 @@ import { s, vs } from 'react-native-size-matters';
 import { usePlayer } from '../hooks/usePlayer';
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 
+import { useRouter } from 'expo-router';
+
 export const MiniPlayer = () => {
     const {
         currentSong,
@@ -27,10 +29,15 @@ export const MiniPlayer = () => {
         duration,
     } = usePlayer();
     const { colors } = useThemeColors();
+    const router = useRouter();
 
     if (!currentSong) return null;
 
     const progress = duration > 0 ? position / duration : 0;
+
+    const handlePress = () => {
+        router.push('/(app)/player');
+    };
 
     return (
         <View
@@ -56,38 +63,45 @@ export const MiniPlayer = () => {
             </View>
 
             <View style={styles.inner}>
-                {/* Artwork */}
-                <View
-                    style={[
-                        styles.artwork,
-                        { backgroundColor: colors.skeleton },
-                    ]}
+                {/* Artwork & Info (Clickable area) */}
+                <TouchableOpacity
+                    onPress={handlePress}
+                    activeOpacity={0.8}
+                    style={styles.clickable}
                 >
-                    {currentSong.imageUri ? (
-                        <Image
-                            source={{ uri: currentSong.imageUri }}
-                            style={styles.artworkImage}
-                        />
-                    ) : (
-                        <Music2 size={s(16)} color={colors.textTertiary} />
-                    )}
-                </View>
+                    {/* Artwork */}
+                    <View
+                        style={[
+                            styles.artwork,
+                            { backgroundColor: colors.skeleton },
+                        ]}
+                    >
+                        {currentSong.imageUri ? (
+                            <Image
+                                source={{ uri: currentSong.imageUri }}
+                                style={styles.artworkImage}
+                            />
+                        ) : (
+                            <Music2 size={s(16)} color={colors.textTertiary} />
+                        )}
+                    </View>
 
-                {/* Info */}
-                <View style={styles.info}>
-                    <Text
-                        style={[styles.title, { color: colors.text }]}
-                        numberOfLines={1}
-                    >
-                        {currentSong.title}
-                    </Text>
-                    <Text
-                        style={[styles.artist, { color: colors.textSecondary }]}
-                        numberOfLines={1}
-                    >
-                        {currentSong.artist}
-                    </Text>
-                </View>
+                    {/* Info */}
+                    <View style={styles.info}>
+                        <Text
+                            style={[styles.title, { color: colors.text }]}
+                            numberOfLines={1}
+                        >
+                            {currentSong.title}
+                        </Text>
+                        <Text
+                            style={[styles.artist, { color: colors.textSecondary }]}
+                            numberOfLines={1}
+                        >
+                            {currentSong.artist}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
 
                 {/* Controls */}
                 <View style={styles.controls}>
@@ -184,6 +198,11 @@ const styles = StyleSheet.create({
     info: {
         flex: 1,
         marginRight: s(8),
+    },
+    clickable: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     title: {
         fontSize: s(13),

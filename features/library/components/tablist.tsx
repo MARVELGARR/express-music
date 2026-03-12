@@ -29,7 +29,7 @@ export const ScrollableTab = ({ tabs, activeTab, onTabChange }: ScrollableTabPro
             <FlatList
                 data={tabs}
                 keyExtractor={(item, idx) => item ?? idx.toString()}
-                renderItem={({ item, index }) => <ScrollTab activeTab={activeTab} onTabChange={onTabChange} tab={item} tabs={tabs} />}
+                renderItem={({ item }) => <ScrollTab activeTab={activeTab} onTabChange={onTabChange} tab={item} tabs={tabs} />}
                 horizontal
                 contentContainerStyle={styles.list}
             />
