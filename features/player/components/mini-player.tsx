@@ -1,3 +1,6 @@
+
+
+
 /**
  * MiniPlayer — Persistent mini playback bar.
  * Modern monochrome design with progress bar, artwork, and controls.
