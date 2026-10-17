@@ -21,7 +21,7 @@ const ActiveTabs = ({ activeTab }: { activeTab: string }) => {
         case "Songs":
             return <SongsCategory />
 
-        case "Album":
+        case "Albums":
             return <AlbumCategory />
         case "Artists":
             return <ArtistCategory />

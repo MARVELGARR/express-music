@@ -4,10 +4,12 @@ import { useThemeColors } from '../hooks/useThemeColors';
 import { useRouter } from 'expo-router';
 import { s, vs } from 'react-native-size-matters';
 import { Moon, Music, Search, Sun } from 'lucide-react-native';
+import { useMediaLibrarys } from '@/core/media-library';
 
 const HomeHeader = () => {
     const { colors, isDark, toggleColorScheme } = useThemeColors();
     const router = useRouter();
+    const { totalCount } = useMediaLibrarys();
 
     // Greeting based on time of day
     const greeting = useMemo(() => {
@@ -30,7 +32,7 @@ const HomeHeader = () => {
                 </View>
                 <View>
                     <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-                        {greeting}
+                        {greeting} · {totalCount} tracks
                     </Text>
                     <Text style={[styles.appName, { color: colors.text }]}>
                         Express Music

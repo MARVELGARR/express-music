@@ -79,6 +79,7 @@ const ScrollTab = ({ tab, activeTab, onTabChange }: ScrollableTabProp) => {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: s(16),
+        gap: s(8),
     },
     container: {
         marginVertical: vs(6),
