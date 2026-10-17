@@ -1,0 +1,9 @@
+
+> .@1.0.0 dev
+> expo start -c
+
+Starting project at C:\Users\USER\Desktop\express-music
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.

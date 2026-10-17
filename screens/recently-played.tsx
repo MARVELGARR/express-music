@@ -8,12 +8,12 @@ import {
     Image,
 } from 'react-native';
 import { Music2, Play } from 'lucide-react-native';
-import MusicInfo from 'expo-music-info-2';
 import { s, vs } from 'react-native-size-matters';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MediaLibraryType, useMediaLibrarys } from '@/core/media-library';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { usePlayerControls } from '@/features/player/hooks/usePlayer';
+import { getMusicMetadata } from '@/core/music-metadata';
 import { SongInfo } from '@/core/audio-player';
 
 const RecentlyPlayedScreen = () => {
@@ -36,23 +36,17 @@ const RecentlyPlayedScreen = () => {
 };
 
 const SongListItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: MediaLibraryType[] }) => {
-    const player = usePlayer();
+    const { play } = usePlayerControls();
     const [musicInfo, setMusicInfo] = React.useState<any>(null);
 
     useEffect(() => {
-        const fetchInfo = async () => {
-            try {
-                const info = await MusicInfo.getMusicInfoAsync(song.uri, {
-                    title: true,
-                    artist: true,
-                    picture: true,
-                });
-                setMusicInfo(info);
-            } catch (error) {
-                console.error('Error fetching music info:', error);
-            }
+        let active = true;
+        getMusicMetadata(song.uri).then((meta) => {
+            if (active) setMusicInfo(meta);
+        });
+        return () => {
+            active = false;
         };
-        fetchInfo();
     }, [song.uri]);
 
     const title = musicInfo?.title || song.filename.split('.')[0];
@@ -66,7 +60,7 @@ const SongListItem = ({ song, allSongs }: { song: MediaLibraryType; allSongs: Me
             title: s.filename.split('.')[0],
             artist: 'Unknown Artist',
         }));
-        player.play(songInfo, queue);
+        play(songInfo, queue);
     };
 
 

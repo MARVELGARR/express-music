@@ -1,43 +1,49 @@
 /**
  * PlayerScreen — Full-screen playback interface.
  * Design: High-contrast monochrome, digital modern aesthetic.
+ *
  * Features:
- *   - Large artwork view
- *   - Progress slider with precise time indicators
- *   - Detailed playback controls (Shuffle, Repeat, Skip, Play/Pause)
- *   - Header with dismiss button
+ *   - Adaptive artwork
+ *   - Custom scrub bar with a highlighted A-B loop region
+ *   - A-B loop editor: pick exact seconds (e.g. 1.00s → 1.50s) and lap counter
+ *   - Playback controls (Shuffle, Repeat, Skip, Play/Pause)
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
+    Animated,
     Image,
-    SafeAreaView,
+    Platform,
+    ScrollView,
     StatusBar,
-    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
+    Activity,
     ChevronDown,
-    Play,
-    Pause,
-    SkipForward,
-    SkipBack,
-    Shuffle,
-    Repeat,
-    Repeat1,
     Music2,
     Heart,
     MoreVertical,
+    Pause,
+    Play,
+    Repeat,
+    Repeat1,
+    Shuffle,
+    SkipBack,
+    SkipForward,
 } from 'lucide-react-native';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
-import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 import { s, vs } from 'react-native-size-matters';
 import { useRouter } from 'expo-router';
-import Slider from '@react-native-community/slider';
 
-const { width } = Dimensions.get('window');
+import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { useThemeColors } from '@/features/home/hooks/useThemeColors';
+import { ProgressBar } from '@/features/player/components/progress-bar';
+import { ABLoopPanel } from '@/features/player/components/ab-loop-panel';
+import { formatClock } from '@/features/player/utils/time';
 
 const PlayerScreen = () => {
     const {
@@ -53,36 +59,95 @@ const PlayerScreen = () => {
         toggleShuffle,
         cycleRepeat,
         seekTo,
+        loopEnabled,
+        loopStart,
+        loopEnd,
+        loopIterations,
+        toggleLoop,
+        clearLoop,
+        setLoopRange,
     } = usePlayer();
     const { colors, isDark } = useThemeColors();
     const router = useRouter();
+    const { width, height } = useWindowDimensions();
+
+    const artSize = Math.min(width * 0.78, height * 0.34);
+    const useNativeDriver = Platform.OS !== 'web';
+
+    // Panel entrance animation
+    const panelAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        if (loopEnabled) {
+            panelAnim.setValue(0);
+            Animated.spring(panelAnim, {
+                toValue: 1,
+                useNativeDriver,
+                friction: 8,
+                tension: 70,
+            }).start();
+        }
+    }, [loopEnabled, panelAnim, useNativeDriver]);
+
+    // Lap pulse on the A-B chip
+    const pulse = useRef(new Animated.Value(1)).current;
+    useEffect(() => {
+        if (!loopEnabled) {
+            pulse.setValue(1);
+            return;
+        }
+        const anim = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulse, {
+                    toValue: 0.35,
+                    duration: 650,
+                    useNativeDriver,
+                }),
+                Animated.timing(pulse, {
+                    toValue: 1,
+                    duration: 650,
+                    useNativeDriver,
+                }),
+            ])
+        );
+        anim.start();
+        return () => anim.stop();
+    }, [loopEnabled, pulse, useNativeDriver]);
 
     if (!currentSong) {
         return (
-            <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View
+                style={[
+                    styles.container,
+                    { backgroundColor: colors.background },
+                ]}
+            >
                 <Text style={{ color: colors.text }}>No song playing</Text>
             </View>
         );
     }
 
-    const formatTime = (seconds: number) => {
-        if (!seconds || isNaN(seconds)) return '0:00';
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView
+            style={[styles.container, { backgroundColor: colors.background }]}
+            edges={['top', 'bottom']}
+        >
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.iconBtn}
+                >
                     <ChevronDown size={s(24)} color={colors.icon} />
                 </TouchableOpacity>
                 <View style={styles.headerCenter}>
-                    <Text style={[styles.headerTitle, { color: colors.textSecondary }]}>
+                    <Text
+                        style={[
+                            styles.headerTitle,
+                            { color: colors.textSecondary },
+                        ]}
+                    >
                         NOW PLAYING
                     </Text>
                 </View>
@@ -91,101 +156,261 @@ const PlayerScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Artwork */}
-            <View style={styles.artworkContainer}>
-                <View style={[styles.artworkWrapper, { backgroundColor: colors.skeleton, borderColor: colors.border, borderWidth: 1 }]}>
-                    {currentSong.imageUri ? (
-                        <Image
-                            source={{ uri: currentSong.imageUri }}
-                            style={styles.artwork}
-                        />
-                    ) : (
-                        <Music2 size={s(80)} color={colors.textTertiary} strokeWidth={1} />
-                    )}
-                </View>
-            </View>
-
-            {/* Song Info */}
-            <View style={styles.infoSection}>
-                <View style={styles.titleWrapper}>
-                    <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-                        {currentSong.title}
-                    </Text>
-                    <Text style={[styles.artist, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {currentSong.artist}
-                    </Text>
-                </View>
-                <TouchableOpacity style={styles.heartBtn}>
-                    <Heart size={s(20)} color={colors.icon} />
-                </TouchableOpacity>
-            </View>
-
-            {/* Progress */}
-            <View style={styles.progressSection}>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={0}
-                    maximumValue={duration || 100}
-                    value={position}
-                    onSlidingComplete={seekTo}
-                    minimumTrackTintColor={colors.accent}
-                    maximumTrackTintColor={colors.divider}
-                    thumbTintColor={colors.accent}
-                />
-                <View style={styles.timeLabels}>
-                    <Text style={[styles.timeText, { color: colors.textTertiary }]}>{formatTime(position)}</Text>
-                    <Text style={[styles.timeText, { color: colors.textTertiary }]}>{formatTime(duration)}</Text>
-                </View>
-            </View>
-
-            {/* Controls */}
-            <View style={styles.controlsSection}>
-                <TouchableOpacity onPress={toggleShuffle}>
-                    <Shuffle
-                        size={s(20)}
-                        color={shuffled ? colors.accent : colors.icon}
-                        strokeWidth={shuffled ? 3 : 2}
-                    />
-                </TouchableOpacity>
-
-                <View style={styles.mainControls}>
-                    <TouchableOpacity onPress={previous}>
-                        <SkipBack size={s(32)} color={colors.icon} fill={colors.icon} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={togglePlayback}
-                        style={[styles.playBtn, { backgroundColor: colors.text }]}
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Artwork */}
+                <View style={styles.artworkContainer}>
+                    <View
+                        style={[
+                            styles.artworkWrapper,
+                            {
+                                width: artSize,
+                                height: artSize,
+                                backgroundColor: colors.skeleton,
+                                borderColor: colors.border,
+                            },
+                        ]}
                     >
-                        {isPlaying ? (
-                            <Pause size={s(28)} color={colors.background} fill={colors.background} />
+                        {currentSong.imageUri ? (
+                            <Image
+                                source={{ uri: currentSong.imageUri }}
+                                style={styles.artwork}
+                            />
                         ) : (
-                            <Play size={s(28)} color={colors.background} fill={colors.background} style={{ marginLeft: s(3) }} />
+                            <Music2
+                                size={s(72)}
+                                color={colors.textTertiary}
+                                strokeWidth={1}
+                            />
+                        )}
+                    </View>
+                </View>
+
+                {/* Song Info */}
+                <View style={styles.infoSection}>
+                    <View style={styles.titleWrapper}>
+                        <Text
+                            style={[styles.title, { color: colors.text }]}
+                            numberOfLines={1}
+                        >
+                            {currentSong.title}
+                        </Text>
+                        <Text
+                            style={[
+                                styles.artist,
+                                { color: colors.textSecondary },
+                            ]}
+                            numberOfLines={1}
+                        >
+                            {currentSong.artist}
+                        </Text>
+                    </View>
+                    <TouchableOpacity style={styles.heartBtn}>
+                        <Heart size={s(20)} color={colors.icon} />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Progress */}
+                <View style={styles.progressSection}>
+                    <ProgressBar
+                        position={position}
+                        duration={duration}
+                        loopStart={loopStart}
+                        loopEnd={loopEnd}
+                        loopEnabled={loopEnabled}
+                        colors={colors}
+                        onSeek={seekTo}
+                    />
+                    <View style={styles.timeLabels}>
+                        <Text
+                            style={[
+                                styles.timeText,
+                                { color: colors.textTertiary },
+                            ]}
+                        >
+                            {formatClock(position)}
+                        </Text>
+                        <Text
+                            style={[
+                                styles.timeText,
+                                { color: colors.textTertiary },
+                            ]}
+                        >
+                            {formatClock(duration)}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* A-B loop toggle */}
+                <View style={styles.abRow}>
+                    <TouchableOpacity
+                        onPress={toggleLoop}
+                        activeOpacity={0.75}
+                        style={[
+                            styles.abChip,
+                            {
+                                backgroundColor: loopEnabled
+                                    ? colors.accent
+                                    : colors.accentSoft,
+                            },
+                        ]}
+                    >
+                        <Animated.View
+                            style={[
+                                styles.abDot,
+                                {
+                                    backgroundColor: loopEnabled
+                                        ? colors.background
+                                        : colors.textSecondary,
+                                    opacity: loopEnabled ? pulse : 1,
+                                },
+                            ]}
+                        />
+                        <Activity
+                            size={s(13)}
+                            color={
+                                loopEnabled
+                                    ? colors.textInverted
+                                    : colors.icon
+                            }
+                        />
+                        <Text
+                            style={[
+                                styles.abChipText,
+                                {
+                                    color: loopEnabled
+                                        ? colors.textInverted
+                                        : colors.icon,
+                                },
+                            ]}
+                        >
+                            A-B LOOP
+                        </Text>
+                        {loopEnabled && (
+                            <Text
+                                style={[
+                                    styles.abChipLaps,
+                                    { color: colors.textInverted },
+                                ]}
+                            >
+                                ×{loopIterations}
+                            </Text>
                         )}
                     </TouchableOpacity>
-
-                    <TouchableOpacity onPress={next}>
-                        <SkipForward size={s(32)} color={colors.icon} fill={colors.icon} />
-                    </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity onPress={cycleRepeat}>
-                    {repeatMode === 'one' ? (
-                        <Repeat1 size={s(20)} color={colors.accent} strokeWidth={3} />
-                    ) : (
-                        <Repeat
-                            size={s(20)}
-                            color={repeatMode === 'all' ? colors.accent : colors.icon}
-                            strokeWidth={repeatMode === 'all' ? 3 : 2}
+                {/* A-B loop editor */}
+                {loopEnabled && (
+                    <Animated.View
+                        style={[
+                            styles.panelWrapper,
+                            {
+                                opacity: panelAnim,
+                                transform: [
+                                    {
+                                        translateY: panelAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [s(24), 0],
+                                        }),
+                                    },
+                                    {
+                                        scale: panelAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0.96, 1],
+                                        }),
+                                    },
+                                ],
+                            },
+                        ]}
+                    >
+                        <ABLoopPanel
+                            colors={colors}
+                            duration={duration}
+                            position={position}
+                            loopStart={loopStart}
+                            loopEnd={loopEnd}
+                            loopIterations={loopIterations}
+                            onSetRange={setLoopRange}
+                            onClear={clearLoop}
                         />
-                    )}
-                </TouchableOpacity>
-            </View>
+                    </Animated.View>
+                )}
 
-            {/* Footer / Extra controls */}
-            <View style={styles.footer}>
-                {/* Could add share or queue buttons here */}
-            </View>
+                {/* Controls */}
+                <View style={styles.controlsSection}>
+                    <TouchableOpacity onPress={toggleShuffle}>
+                        <Shuffle
+                            size={s(20)}
+                            color={shuffled ? colors.accent : colors.icon}
+                            strokeWidth={shuffled ? 3 : 2}
+                        />
+                    </TouchableOpacity>
+
+                    <View style={styles.mainControls}>
+                        <TouchableOpacity onPress={previous}>
+                            <SkipBack
+                                size={s(32)}
+                                color={colors.icon}
+                                fill={colors.icon}
+                            />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={togglePlayback}
+                            style={[
+                                styles.playBtn,
+                                { backgroundColor: colors.text },
+                            ]}
+                        >
+                            {isPlaying ? (
+                                <Pause
+                                    size={s(28)}
+                                    color={colors.background}
+                                    fill={colors.background}
+                                />
+                            ) : (
+                                <Play
+                                    size={s(28)}
+                                    color={colors.background}
+                                    fill={colors.background}
+                                    style={{ marginLeft: s(3) }}
+                                />
+                            )}
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={next}>
+                            <SkipForward
+                                size={s(32)}
+                                color={colors.icon}
+                                fill={colors.icon}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity onPress={cycleRepeat}>
+                        {repeatMode === 'one' ? (
+                            <Repeat1
+                                size={s(20)}
+                                color={colors.accent}
+                                strokeWidth={3}
+                            />
+                        ) : (
+                            <Repeat
+                                size={s(20)}
+                                color={
+                                    repeatMode === 'all'
+                                        ? colors.accent
+                                        : colors.icon
+                                }
+                                strokeWidth={repeatMode === 'all' ? 3 : 2}
+                            />
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 };
@@ -201,7 +426,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: s(20),
-        height: vs(60),
+        height: vs(56),
     },
     headerCenter: {
         alignItems: 'center',
@@ -214,19 +439,22 @@ const styles = StyleSheet.create({
     iconBtn: {
         padding: s(8),
     },
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: vs(20),
+    },
     artworkContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: vs(20),
-        marginBottom: vs(40),
+        marginTop: vs(8),
+        marginBottom: vs(24),
     },
     artworkWrapper: {
-        width: width * 0.85,
-        height: width * 0.85,
         borderRadius: s(20),
         overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
@@ -242,7 +470,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: s(30),
-        marginBottom: vs(30),
+        marginBottom: vs(22),
     },
     titleWrapper: {
         flex: 1,
@@ -263,29 +491,56 @@ const styles = StyleSheet.create({
     },
     progressSection: {
         paddingHorizontal: s(20),
-        marginBottom: vs(30),
-    },
-    slider: {
-        width: '100%',
-        height: 40,
+        marginBottom: vs(14),
     },
     timeLabels: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: s(10),
-        marginTop: vs(-8),
+        marginTop: vs(-4),
     },
     timeText: {
         fontSize: s(11),
         fontWeight: '600',
-        fontFamily: 'monospace',
+        fontVariant: ['tabular-nums'],
+    },
+    abRow: {
+        alignItems: 'center',
+        marginBottom: vs(12),
+    },
+    abChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: s(6),
+        paddingHorizontal: s(14),
+        paddingVertical: vs(7),
+        borderRadius: s(20),
+    },
+    abDot: {
+        width: s(6),
+        height: s(6),
+        borderRadius: s(3),
+    },
+    abChipText: {
+        fontSize: s(11),
+        fontWeight: '800',
+        letterSpacing: 1.5,
+    },
+    abChipLaps: {
+        fontSize: s(11),
+        fontWeight: '800',
+        fontVariant: ['tabular-nums'],
+    },
+    panelWrapper: {
+        paddingHorizontal: s(20),
+        marginBottom: vs(14),
     },
     controlsSection: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: s(40),
-        marginTop: vs(10),
+        marginTop: vs(6),
     },
     mainControls: {
         flexDirection: 'row',
@@ -303,11 +558,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 5,
         elevation: 5,
-    },
-    footer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        paddingBottom: vs(20),
     },
 });

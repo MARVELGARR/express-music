@@ -116,7 +116,15 @@ const palette = {
     },
 } as const;
 
-export type ThemeColors = (typeof palette)['dark'];
+/**
+ * Widened from the palette so the light and dark variants are interchangeable
+ * (the palettes hold different string literals per scheme).
+ */
+export type ThemeColors = {
+    [K in keyof (typeof palette)['dark']]: K extends 'statusBar'
+        ? 'light' | 'dark'
+        : string;
+};
 
 export const useThemeColors = () => {
     const { colorScheme, toggleColorScheme } = useColorScheme();

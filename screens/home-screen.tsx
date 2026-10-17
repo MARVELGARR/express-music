@@ -26,7 +26,10 @@ import { categoryTags, quickActions } from '@/features/home/constants';
 import { QuickActions } from '@/features/home/components/quick-actions';
 import { ScrollableTab } from '@/features/library/components/tablist';
 import { useMediaLibrarys } from '@/core/media-library';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import {
+    usePlayerState,
+    usePlayerControls,
+} from '@/features/player/hooks/usePlayer';
 
 import StatsBar from '@/features/home/components/stats-bar';
 import HomeHeader from '@/features/home/components/home-header';
@@ -38,7 +41,8 @@ const HomeScreen = () => {
     const { colors, isDark, } = useThemeColors();
     const router = useRouter();
     const { songs, totalCount } = useMediaLibrarys();
-    const player = usePlayer();
+    const { shuffled } = usePlayerState();
+    const { play, toggleShuffle } = usePlayerControls();
 
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [activeTab, setActiveTab] = useState('For You');
@@ -56,8 +60,8 @@ const HomeScreen = () => {
                         title: s.filename.split('.')[0],
                         artist: 'Unknown Artist',
                     }));
-                    player.play(queue[randomIdx], queue);
-                    if (!player.shuffled) player.toggleShuffle();
+                    play(queue[randomIdx], queue);
+                    if (!shuffled) toggleShuffle();
                 }
                 break;
             case 'recent':

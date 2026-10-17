@@ -11,11 +11,14 @@ import {
     StyleSheet,
 } from 'react-native';
 import { Music2, Play, Pause, MoreVertical } from 'lucide-react-native';
-import MusicInfo from 'expo-music-info-2';
 import { s, vs } from 'react-native-size-matters';
 import { MediaLibraryType } from '@/core/media-library';
 import { SongInfo } from '@/core/audio-player';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { getMusicMetadata } from '@/core/music-metadata';
+import {
+    usePlayerState,
+    usePlayerControls,
+} from '@/features/player/hooks/usePlayer';
 import { useThemeColors } from '../../home/hooks/useThemeColors';
 
 type Props = {
@@ -27,22 +30,20 @@ type Props = {
 
 export const SongRow = ({ song, allSongs, index, showIndex = false }: Props) => {
     const { colors } = useThemeColors();
-    const player = usePlayer();
+    const { currentSong, isPlaying } = usePlayerState();
+    const { play } = usePlayerControls();
     const [info, setInfo] = useState<any>(null);
 
-    const isCurrent = player.currentSong?.song.uri === song.uri;
+    const isCurrent = currentSong?.song.uri === song.uri;
 
     useEffect(() => {
-        (async () => {
-            try {
-                const data = await MusicInfo.getMusicInfoAsync(song.uri, {
-                    title: true,
-                    artist: true,
-                    picture: true,
-                });
-                setInfo(data);
-            } catch (_) { }
-        })();
+        let active = true;
+        getMusicMetadata(song.uri).then((meta) => {
+            if (active) setInfo(meta);
+        });
+        return () => {
+            active = false;
+        };
     }, [song.uri]);
 
     const title = info?.title || song.filename.split('.')[0];
@@ -62,7 +63,7 @@ export const SongRow = ({ song, allSongs, index, showIndex = false }: Props) => 
             title: s.filename.split('.')[0],
             artist: 'Unknown Artist',
         }));
-        player.play(songInfo, queue);
+        play(songInfo, queue);
     };
 
     return (
@@ -126,7 +127,7 @@ export const SongRow = ({ song, allSongs, index, showIndex = false }: Props) => 
                 style={styles.playBtn}
                 activeOpacity={0.6}
             >
-                {isCurrent && player.isPlaying ? (
+                {isCurrent && isPlaying ? (
                     <Pause size={s(16)} color={colors.accent} fill={colors.accent} />
                 ) : (
                     <Play size={s(16)} color={colors.textSecondary} fill={colors.textSecondary} />

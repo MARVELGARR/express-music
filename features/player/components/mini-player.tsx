@@ -1,12 +1,11 @@
-
-
-
 /**
  * MiniPlayer — Persistent mini playback bar.
  * Modern monochrome design with progress bar, artwork, and controls.
  * Theme-aware for light/dark modes.
+ *
+ * Uses narrow player hooks: it only re-renders for the state it renders.
  */
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import {
     Play,
@@ -16,27 +15,34 @@ import {
     Music2,
 } from 'lucide-react-native';
 import { s, vs } from 'react-native-size-matters';
-import { usePlayer } from '../hooks/usePlayer';
+import {
+    usePlayerState,
+    usePlayerControls,
+    usePlayerProgress,
+} from '../hooks/usePlayer';
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 
 import { useRouter } from 'expo-router';
 
-export const MiniPlayer = () => {
+export const MiniPlayer = memo(() => {
     const {
         currentSong,
         isPlaying,
-        togglePlayback,
-        next,
-        previous,
-        position,
-        duration,
-    } = usePlayer();
+        loopEnabled,
+        loopStart,
+        loopEnd,
+    } = usePlayerState();
+    const { togglePlayback, next, previous } = usePlayerControls();
+    const { position, duration } = usePlayerProgress();
     const { colors } = useThemeColors();
     const router = useRouter();
 
     if (!currentSong) return null;
 
     const progress = duration > 0 ? position / duration : 0;
+    const loopLeft = loopEnabled && duration > 0 ? (loopStart / duration) * 100 : 0;
+    const loopWidth =
+        loopEnabled && duration > 0 ? ((loopEnd - loopStart) / duration) * 100 : 0;
 
     const handlePress = () => {
         router.push('/(app)/player');
@@ -54,6 +60,19 @@ export const MiniPlayer = () => {
         >
             {/* Progress bar — thin line at top */}
             <View style={[styles.progressTrack, { backgroundColor: colors.divider }]}>
+                {/* A-B loop region */}
+                {loopWidth > 0 && (
+                    <View
+                        style={[
+                            styles.progressLoop,
+                            {
+                                left: `${loopLeft}%`,
+                                width: `${loopWidth}%`,
+                                backgroundColor: colors.accentMuted,
+                            },
+                        ]}
+                    />
+                )}
                 <View
                     style={[
                         styles.progressFill,
@@ -97,12 +116,31 @@ export const MiniPlayer = () => {
                         >
                             {currentSong.title}
                         </Text>
-                        <Text
-                            style={[styles.artist, { color: colors.textSecondary }]}
-                            numberOfLines={1}
-                        >
-                            {currentSong.artist}
-                        </Text>
+                        <View style={styles.metaRow}>
+                            <Text
+                                style={[styles.artist, { color: colors.textSecondary }]}
+                                numberOfLines={1}
+                            >
+                                {currentSong.artist}
+                            </Text>
+                            {loopEnabled && (
+                                <View
+                                    style={[
+                                        styles.loopBadge,
+                                        { backgroundColor: colors.accent },
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.loopBadgeText,
+                                            { color: colors.textInverted },
+                                        ]}
+                                    >
+                                        A-B
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
                 </TouchableOpacity>
 
@@ -154,7 +192,9 @@ export const MiniPlayer = () => {
             </View>
         </View>
     );
-};
+});
+
+MiniPlayer.displayName = 'MiniPlayer';
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -175,6 +215,11 @@ const styles = StyleSheet.create({
     progressTrack: {
         height: 2,
         width: '100%',
+    },
+    progressLoop: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
     },
     progressFill: {
         height: '100%',
@@ -202,6 +247,12 @@ const styles = StyleSheet.create({
         flex: 1,
         marginRight: s(8),
     },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: s(6),
+        marginTop: vs(1),
+    },
     clickable: {
         flex: 1,
         flexDirection: 'row',
@@ -213,7 +264,17 @@ const styles = StyleSheet.create({
     },
     artist: {
         fontSize: s(11),
-        marginTop: vs(1),
+        flexShrink: 1,
+    },
+    loopBadge: {
+        paddingHorizontal: s(5),
+        paddingVertical: vs(1),
+        borderRadius: s(4),
+    },
+    loopBadgeText: {
+        fontSize: s(8),
+        fontWeight: '800',
+        letterSpacing: 0.5,
     },
     controls: {
         flexDirection: 'row',

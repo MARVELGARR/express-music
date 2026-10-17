@@ -11,11 +11,11 @@ import {
     StyleSheet,
 } from 'react-native';
 import { Music2, Play } from 'lucide-react-native';
-import MusicInfo from 'expo-music-info-2';
 import { s, vs } from 'react-native-size-matters';
 import { MediaLibraryType } from '@/core/media-library';
 import { SongInfo } from '@/core/audio-player';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { getMusicMetadata } from '@/core/music-metadata';
+import { usePlayerControls } from '@/features/player/hooks/usePlayer';
 import { useThemeColors } from '../hooks/useThemeColors';
 
 type Props = {
@@ -26,20 +26,17 @@ type Props = {
 
 export const SongCard = ({ song, allSongs, size = 'medium' }: Props) => {
     const { colors } = useThemeColors();
-    const player = usePlayer();
+    const { play } = usePlayerControls();
     const [info, setInfo] = useState<any>(null);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const data = await MusicInfo.getMusicInfoAsync(song.uri, {
-                    title: true,
-                    artist: true,
-                    picture: true,
-                });
-                setInfo(data);
-            } catch (_) { }
-        })();
+        let active = true;
+        getMusicMetadata(song.uri).then((meta) => {
+            if (active) setInfo(meta);
+        });
+        return () => {
+            active = false;
+        };
     }, [song.uri]);
 
     const title = info?.title || song.filename.split('.')[0];
@@ -55,7 +52,7 @@ export const SongCard = ({ song, allSongs, size = 'medium' }: Props) => {
             title: s.filename.split('.')[0],
             artist: 'Unknown Artist',
         }));
-        player.play(songInfo, queue);
+        play(songInfo, queue);
     };
 
     return (

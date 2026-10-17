@@ -9,12 +9,12 @@ import React from 'react'
 import { s, vs } from 'react-native-size-matters'
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useMediaLibrarys } from '@/core/media-library';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { usePlayerState } from '@/features/player/hooks/usePlayer';
 
 const StatsBar = () => {
     const { colors, isDark, toggleColorScheme } = useThemeColors();
     const { songs, totalCount } = useMediaLibrarys();
-    const player = usePlayer();
+    const { queue, shuffled } = usePlayerState();
     return (
         <View style={[styles.statsBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.stat}>
@@ -23,13 +23,13 @@ const StatsBar = () => {
             </View>
             <View style={[styles.statDivider, { backgroundColor: colors.divider }]} />
             <View style={styles.stat}>
-                <Text style={[styles.statNumber, { color: colors.text }]}>{player.queue.length}</Text>
+                <Text style={[styles.statNumber, { color: colors.text }]}>{queue.length}</Text>
                 <Text style={[styles.statLabel, { color: colors.textTertiary }]}>In Queue</Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: colors.divider }]} />
             <View style={styles.stat}>
                 <Text style={[styles.statNumber, { color: colors.text }]}>
-                    {player.shuffled ? 'ON' : 'OFF'}
+                    {shuffled ? 'ON' : 'OFF'}
                 </Text>
                 <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Shuffle</Text>
             </View>

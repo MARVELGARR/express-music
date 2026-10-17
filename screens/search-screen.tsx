@@ -27,12 +27,12 @@ import {
 } from 'lucide-react-native';
 import { s, vs } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MusicInfo from 'expo-music-info-2';
 
 import { useThemeColors } from '@/features/home/hooks/useThemeColors';
 import { useMediaLibrarys, MediaLibraryType } from '@/core/media-library';
 import { SongInfo } from '@/core/audio-player';
-import { usePlayer } from '@/features/player/hooks/usePlayer';
+import { getMusicMetadata } from '@/core/music-metadata';
+import { usePlayerControls } from '@/features/player/hooks/usePlayer';
 import useDebounce from '@/features/universal/hooks/useDebounce';
 import { ScrollableTab } from '@/features/library/components/tablist';
 
@@ -42,7 +42,7 @@ const SEARCH_FILTERS = ['All', 'Songs', 'Artists', 'Albums'];
 export default function SearchScreen() {
     const { colors, isDark, toggleColorScheme } = useThemeColors();
     const { songs } = useMediaLibrarys();
-    const player = usePlayer();
+    const { play } = usePlayerControls();
     const inputRef = useRef<TextInput>(null);
 
     const [query, setQuery] = useState('');
@@ -96,7 +96,7 @@ export default function SearchScreen() {
             title: s.filename.split('.')[0],
             artist: 'Unknown Artist',
         }));
-        player.play(songInfo, queue);
+        play(songInfo, queue);
     };
 
     const showRecent = !debouncedValue.trim() && recentSearches.length > 0;
@@ -233,16 +233,13 @@ const SearchResultRow = ({
     const [info, setInfo] = useState<any>(null);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const data = await MusicInfo.getMusicInfoAsync(song.uri, {
-                    title: true,
-                    artist: true,
-                    picture: true,
-                });
-                setInfo(data);
-            } catch (_) { }
-        })();
+        let active = true;
+        getMusicMetadata(song.uri).then((meta) => {
+            if (active) setInfo(meta);
+        });
+        return () => {
+            active = false;
+        };
     }, [song.uri]);
 
     const title = info?.title || song.filename.split('.')[0];

@@ -1,4 +1,4 @@
-import { useMediaLibrarys } from '@/core/media-library';
+import { MediaLibraryProvider, useMediaLibrarys } from '@/core/media-library';
 import { AudioPlayerProvider } from '@/core/audio-player';
 import { MiniPlayer } from '@/features/player/components/mini-player';
 import '@/global.css';
@@ -21,36 +21,44 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  return (
+    <MediaLibraryProvider>
+      <AudioPlayerProvider>
+        <RootNavigator />
+      </AudioPlayerProvider>
+    </MediaLibraryProvider>
+  );
+}
+
+function RootNavigator() {
   const { colorScheme } = useColorScheme();
-  const { getPermissions, songs } = useMediaLibrarys();
+  const { isLoaded } = useMediaLibrarys();
 
   useEffect(() => {
-    getPermissions();
-    if (songs) {
+    // Hide the splash only after the first library load attempt finishes.
+    if (isLoaded) {
       SplashScreen.hideAsync();
     }
-  }, []);
+  }, [isLoaded]);
 
   return (
-    <AudioPlayerProvider>
-      <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-        <View style={{ flex: 1 }}>
-          <Stack>
-            {/* Main tab navigator */}
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            {/* Detail / App screens — stack on top of tabs, no tab bar */}
-            <Stack.Screen
-              name="(app)"
-              options={{ headerShown: false }}
-            />
-            {/* 404 */}
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          {/* Persistent mini-player sits above the tab bar */}
-          <MiniPlayer />
-        </View>
-        <PortalHost />
-      </ThemeProvider>
-    </AudioPlayerProvider>
+    <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
+      <View style={{ flex: 1 }}>
+        <Stack>
+          {/* Main tab navigator */}
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* Detail / App screens — stack on top of tabs, no tab bar */}
+          <Stack.Screen
+            name="(app)"
+            options={{ headerShown: false }}
+          />
+          {/* 404 */}
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        {/* Persistent mini-player sits above the tab bar */}
+        <MiniPlayer />
+      </View>
+      <PortalHost />
+    </ThemeProvider>
   );
 }
